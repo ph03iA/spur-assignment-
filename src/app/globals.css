@@ -18,6 +18,14 @@
   --warning: #9b5c1a;
   --shadow: 0 18px 60px rgb(49 43 32 / 8%);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia,
+    ui-serif, serif;
+  --font-body: "Aptos", "Segoe UI Variable Text", "Helvetica Neue", Arial,
+    ui-sans-serif, system-ui, sans-serif;
+  --font-ui: "Segoe UI Variable Display", "Aptos Display", "Helvetica Neue",
+    Arial, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Cascadia Mono", "SFMono-Regular", "SF Mono", Consolas,
+    "Liberation Mono", monospace;
 }
 
 * {
@@ -33,9 +41,10 @@ body {
 body {
   background: var(--background);
   color: var(--text);
-  font-family:
-    Geist, "SF Pro Display", "Helvetica Neue", Arial, ui-sans-serif, system-ui,
-    sans-serif;
+  font-family: var(--font-body);
+  font-feature-settings: "kern", "liga", "calt";
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
 }
 
 body::before {
@@ -104,7 +113,8 @@ textarea:focus-visible {
   border-radius: 8px;
   background: #fbf3db;
   color: #6d4f0c;
-  font-size: 0.82rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
   font-weight: 750;
   letter-spacing: 0.04em;
 }
@@ -113,16 +123,19 @@ textarea:focus-visible {
   max-width: 11ch;
   margin: 22px 0 14px;
   color: #24221f;
+  font-family: var(--font-display);
   font-size: clamp(2.35rem, 5vw, 3.65rem);
-  font-weight: 650;
-  line-height: 0.94;
+  font-weight: 600;
+  line-height: 0.96;
   letter-spacing: 0;
 }
 
 .store-panel p {
   margin: 0;
   color: var(--muted);
+  font-family: var(--font-display);
   font-size: 0.98rem;
+  font-style: italic;
   line-height: 1.6;
 }
 
@@ -147,8 +160,9 @@ textarea:focus-visible {
 
 .policy-list strong {
   color: var(--text);
+  font-family: var(--font-mono);
   font-size: 0.72rem;
-  font-weight: 750;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -184,8 +198,10 @@ textarea:focus-visible {
 
 .chat-title strong {
   color: var(--text);
-  font-size: 1.02rem;
+  font-family: var(--font-ui);
+  font-size: 1.04rem;
   font-weight: 700;
+  letter-spacing: 0.01em;
 }
 
 .status-line {
@@ -193,7 +209,9 @@ textarea:focus-visible {
   align-items: center;
   gap: 8px;
   color: var(--muted);
-  font-size: 0.88rem;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.02em;
 }
 
 .status-dot {
@@ -271,8 +289,9 @@ textarea:focus-visible {
   background: #fbf3db;
   color: #76560f;
   padding: 6px 10px;
+  font-family: var(--font-mono);
   font-size: 0.72rem;
-  font-weight: 750;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -280,9 +299,10 @@ textarea:focus-visible {
 .empty-state h2 {
   margin: 0 0 12px;
   color: var(--text);
+  font-family: var(--font-display);
   font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 650;
-  line-height: 1;
+  font-weight: 600;
+  line-height: 1.02;
   letter-spacing: 0;
 }
 
@@ -309,7 +329,9 @@ textarea:focus-visible {
   color: var(--muted-strong);
   padding: 8px 12px;
   cursor: pointer;
+  font-family: var(--font-ui);
   font-size: 0.9rem;
+  font-weight: 560;
   transition:
     background-color 180ms var(--ease-out),
     border-color 180ms var(--ease-out),
@@ -342,6 +364,7 @@ textarea:focus-visible {
   max-width: min(76%, 560px);
   border-radius: 8px;
   padding: 12px 14px;
+  font-family: var(--font-body);
   font-size: 0.96rem;
   line-height: 1.52;
   white-space: pre-wrap;
@@ -407,6 +430,8 @@ textarea:focus-visible {
   padding: 13px 14px;
   background: var(--surface-strong);
   color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.98rem;
   line-height: 1.38;
   outline: none;
   transition:
@@ -434,6 +459,7 @@ textarea:focus-visible {
   background: var(--text);
   color: #ffffff;
   cursor: pointer;
+  font-family: var(--font-ui);
   transition:
     background-color 180ms var(--ease-out),
     opacity 180ms var(--ease-out),
@@ -460,7 +486,9 @@ textarea:focus-visible {
   justify-content: space-between;
   gap: 16px;
   color: var(--muted);
-  font-size: 0.82rem;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .error-text {
