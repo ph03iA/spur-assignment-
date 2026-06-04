@@ -1,6 +1,13 @@
 "use client";
 
-import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
+import {
+  type CSSProperties,
+  FormEvent,
+  KeyboardEvent,
+  useEffect,
+  useRef,
+  useState
+} from "react";
 import { RefreshCcw, Send } from "lucide-react";
 
 const MAX_MESSAGE_LENGTH = 2000;
@@ -32,12 +39,18 @@ const policyHighlights = [
   },
   {
     label: "Returns",
-    text: "30-day returns for unused items with the original packaging."
+    text: "Unused items can be returned within 30 days."
   },
   {
     label: "Support",
     text: "Live support runs Monday to Friday, 9 AM to 6 PM IST."
   }
+];
+
+const starterPrompts = [
+  "What is your return policy?",
+  "Do you ship to the US?",
+  "My item arrived damaged."
 ];
 
 function createLocalMessage(sender: Sender, text: string): ChatMessage {
@@ -111,6 +124,11 @@ export function ChatWidget() {
     setSessionId(null);
     setMessages([]);
     setInput("");
+    setError(null);
+  }
+
+  function handlePromptSelect(prompt: string) {
+    setInput(prompt);
     setError(null);
   }
 
@@ -190,11 +208,11 @@ export function ChatWidget() {
       <section className="chat-frame" aria-label="AI support chat">
         <aside className="store-panel" aria-label="Store context">
           <div>
-            <span className="brand-mark">AS</span>
-            <h1>Acme Supply</h1>
+            <span className="brand-mark">MS</span>
+            <h1>Morrow Supply</h1>
             <p>
-              Everyday gear, clear policies, and quick support from a compact
-              commerce team.
+              Everyday gear, clear policies, and direct help from the support
+              desk.
             </p>
           </div>
 
@@ -211,7 +229,7 @@ export function ChatWidget() {
         <section className="chat-panel">
           <header className="chat-header">
             <div className="chat-title">
-              <strong>Support Agent</strong>
+              <strong>Morrow Support</strong>
               <span className="status-line">
                 <span className="status-dot" aria-hidden="true" />
                 {isSending ? "Typing" : "Online"}
@@ -241,17 +259,31 @@ export function ChatWidget() {
             ) : messages.length === 0 ? (
               <div className="empty-state">
                 <div>
-                  <h2>Ask about an order</h2>
+                  <span className="eyebrow">AI support desk</span>
+                  <h2>How can we help?</h2>
                   <p>
-                    The agent has store policy context and keeps replies brief.
+                    Ask about shipping, returns, refunds, or an order change.
                   </p>
+                  <div className="prompt-list" aria-label="Suggested messages">
+                    {starterPrompts.map((prompt) => (
+                      <button
+                        className="prompt-chip"
+                        key={prompt}
+                        onClick={() => handlePromptSelect(prompt)}
+                        type="button"
+                      >
+                        {prompt}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             ) : (
-              messages.map((message) => (
+              messages.map((message, index) => (
                 <div
                   className={`message-row ${message.sender}`}
                   key={message.id}
+                  style={{ "--index": index } as CSSProperties}
                 >
                   <div className="message-bubble">{message.text}</div>
                 </div>
@@ -278,7 +310,7 @@ export function ChatWidget() {
                 disabled={isLoadingHistory}
                 onChange={(event) => setInput(event.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="What is your return policy?"
+                placeholder="Ask about shipping, returns, or refunds"
                 rows={1}
                 value={input}
               />
@@ -293,8 +325,8 @@ export function ChatWidget() {
               </button>
             </form>
             <div className="composer-meta">
-              <span className={error ? "error-text" : undefined}>
-                {error ?? "Enter sends. Shift + Enter adds a line."}
+              <span aria-live="polite" className={error ? "error-text" : undefined}>
+                {error ?? ""}
               </span>
               <span>
                 {characterCount}/{MAX_MESSAGE_LENGTH}
