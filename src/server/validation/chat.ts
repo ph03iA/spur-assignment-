@@ -11,11 +11,15 @@ export const chatMessageRequestSchema = z.object({
     .min(1, "Message cannot be empty.")
     .max(MAX_MESSAGE_LENGTH, `Message must be ${MAX_MESSAGE_LENGTH} characters or fewer.`),
   sessionId: z
-    .string()
-    .trim()
-    .min(1, "Session id cannot be empty.")
-    .max(128, "Session id is too long.")
-    .optional()
+    .preprocess(
+      (value) => (value === null ? undefined : value),
+      z
+        .string()
+        .trim()
+        .min(1, "Session id cannot be empty.")
+        .max(128, "Session id is too long.")
+        .optional()
+    )
 });
 
 export const chatHistoryRequestSchema = z.object({

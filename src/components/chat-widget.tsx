@@ -157,7 +157,7 @@ export function ChatWidget() {
         },
         body: JSON.stringify({
           message: text,
-          sessionId
+          ...(sessionId ? { sessionId } : {})
         })
       });
 
