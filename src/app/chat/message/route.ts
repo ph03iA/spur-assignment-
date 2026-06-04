@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { CHAT_SESSION_COOKIE } from "@/lib/chat-session";
 import { createChatReply } from "@/server/services/chat-service";
 import {
   chatMessageRequestSchema,
@@ -38,7 +39,15 @@ export async function POST(request: Request) {
 
   try {
     const result = await createChatReply(parsed.data);
-    return NextResponse.json(result);
+    const response = NextResponse.json(result);
+
+    response.cookies.set(CHAT_SESSION_COOKIE, result.sessionId, {
+      maxAge: 60 * 60 * 24 * 30,
+      path: "/",
+      sameSite: "lax"
+    });
+
+    return response;
   } catch (error) {
     console.error("Chat message request failed", error);
 

@@ -5,33 +5,43 @@ import {
   FormEvent,
   KeyboardEvent,
   type ReactNode,
+  useReducer,
   useEffect,
   useRef,
-  useState
 } from "react";
 import { RefreshCcw, Send } from "lucide-react";
+import { CHAT_SESSION_COOKIE, CHAT_SESSION_STORAGE_KEY } from "@/lib/chat-session";
 
 const MAX_MESSAGE_LENGTH = 2000;
-const SESSION_STORAGE_KEY = "spur-ai-chat-session:v1";
 
 type Sender = "user" | "ai";
 
-type ChatMessage = {
+export type ChatMessage = {
   id: string;
   sender: Sender;
   text: string;
   createdAt: string;
 };
 
-type ChatHistoryResponse = {
-  sessionId: string;
-  messages: ChatMessage[];
-};
-
 type ChatMessageResponse = {
   reply: string;
   sessionId: string;
 };
+
+type ChatState = {
+  messages: ChatMessage[];
+  input: string;
+  isSending: boolean;
+  error: string | null;
+};
+
+type ChatAction =
+  | { type: "inputChanged"; input: string }
+  | { type: "promptSelected"; input: string }
+  | { type: "conversationReset" }
+  | { type: "sendStarted"; message: ChatMessage }
+  | { type: "sendSucceeded"; message: ChatMessage }
+  | { type: "sendFailed"; message: ChatMessage; error: string };
 
 const policyHighlights = [
   {
@@ -63,6 +73,46 @@ function createLocalMessage(sender: Sender, text: string): ChatMessage {
   };
 }
 
+function chatReducer(state: ChatState, action: ChatAction): ChatState {
+  switch (action.type) {
+    case "inputChanged":
+    case "promptSelected":
+      return {
+        ...state,
+        input: action.input,
+        error: null
+      };
+    case "conversationReset":
+      return {
+        messages: [],
+        input: "",
+        isSending: false,
+        error: null
+      };
+    case "sendStarted":
+      return {
+        ...state,
+        input: "",
+        isSending: true,
+        error: null,
+        messages: [...state.messages, action.message]
+      };
+    case "sendSucceeded":
+      return {
+        ...state,
+        isSending: false,
+        messages: [...state.messages, action.message]
+      };
+    case "sendFailed":
+      return {
+        ...state,
+        isSending: false,
+        error: action.error,
+        messages: [...state.messages, action.message]
+      };
+  }
+}
+
 function renderMessageText(text: string): ReactNode {
   const parts = text.split(/(\*\*[^*]+\*\*)/g);
 
@@ -75,50 +125,25 @@ function renderMessageText(text: string): ReactNode {
   });
 }
 
-export function ChatWidget() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState("");
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
-  const [isSending, setIsSending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+type ChatWidgetProps = {
+  initialMessages: ChatMessage[];
+  initialSessionId: string | null;
+  initialError: string | null;
+};
+
+export function ChatWidget({
+  initialMessages,
+  initialSessionId,
+  initialError
+}: ChatWidgetProps) {
+  const [state, dispatch] = useReducer(chatReducer, {
+    messages: initialMessages,
+    input: "",
+    isSending: false,
+    error: initialError
+  });
+  const sessionIdRef = useRef(initialSessionId);
   const listRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const savedSessionId = window.localStorage.getItem(SESSION_STORAGE_KEY);
-
-    async function loadHistory(activeSessionId: string | null) {
-      await Promise.resolve();
-
-      if (!activeSessionId) {
-        setIsLoadingHistory(false);
-        return;
-      }
-
-      setSessionId(activeSessionId);
-
-      try {
-        const response = await fetch(
-          `/chat/history?sessionId=${encodeURIComponent(activeSessionId)}`
-        );
-
-        if (!response.ok) {
-          throw new Error("Could not load the saved conversation.");
-        }
-
-        const data = (await response.json()) as ChatHistoryResponse;
-        setMessages(data.messages);
-      } catch {
-        window.localStorage.removeItem(SESSION_STORAGE_KEY);
-        setSessionId(null);
-        setError("Saved chat history could not be loaded.");
-      } finally {
-        setIsLoadingHistory(false);
-      }
-    }
-
-    void loadHistory(savedSessionId);
-  }, []);
 
   useEffect(() => {
     const list = listRef.current;
@@ -130,39 +155,45 @@ export function ChatWidget() {
       top: list.scrollHeight,
       behavior: "smooth"
     });
-  }, [messages, isSending]);
+  }, [state.messages, state.isSending]);
 
   function resetConversation() {
-    window.localStorage.removeItem(SESSION_STORAGE_KEY);
-    setSessionId(null);
-    setMessages([]);
-    setInput("");
-    setError(null);
+    document.cookie = `${CHAT_SESSION_COOKIE}=; Max-Age=0; path=/`;
+    window.localStorage.removeItem(CHAT_SESSION_STORAGE_KEY);
+    sessionIdRef.current = null;
+    dispatch({ type: "conversationReset" });
   }
 
   function handlePromptSelect(prompt: string) {
-    setInput(prompt);
-    setError(null);
+    dispatch({ type: "promptSelected", input: prompt });
   }
 
   async function sendMessage() {
-    const text = input.trim();
+    const text = state.input.trim();
 
-    if (!text || isSending) {
+    if (!text || state.isSending) {
       return;
     }
 
     if (text.length > MAX_MESSAGE_LENGTH) {
-      setError(`Keep messages under ${MAX_MESSAGE_LENGTH} characters.`);
+      dispatch({
+        type: "sendFailed",
+        error: `Keep messages under ${MAX_MESSAGE_LENGTH} characters.`,
+        message: createLocalMessage(
+          "ai",
+          `Keep messages under ${MAX_MESSAGE_LENGTH} characters.`
+        )
+      });
       return;
     }
 
-    setError(null);
-    setInput("");
-    setIsSending(true);
-    setMessages((current) => [...current, createLocalMessage("user", text)]);
+    dispatch({
+      type: "sendStarted",
+      message: createLocalMessage("user", text)
+    });
 
     try {
+      const sessionId = sessionIdRef.current;
       const response = await fetch("/chat/message", {
         method: "POST",
         headers: {
@@ -182,21 +213,22 @@ export function ChatWidget() {
         throw new Error(data.error ?? "The support agent could not reply.");
       }
 
-      window.localStorage.setItem(SESSION_STORAGE_KEY, data.sessionId);
-      setSessionId(data.sessionId);
-      setMessages((current) => [
-        ...current,
-        createLocalMessage("ai", data.reply as string)
-      ]);
+      window.localStorage.setItem(CHAT_SESSION_STORAGE_KEY, data.sessionId);
+      sessionIdRef.current = data.sessionId;
+      dispatch({
+        type: "sendSucceeded",
+        message: createLocalMessage("ai", data.reply as string)
+      });
     } catch (sendError) {
       const message =
         sendError instanceof Error
           ? sendError.message
           : "The support agent could not reply.";
-      setError(message);
-      setMessages((current) => [...current, createLocalMessage("ai", message)]);
-    } finally {
-      setIsSending(false);
+      dispatch({
+        type: "sendFailed",
+        error: message,
+        message: createLocalMessage("ai", message)
+      });
     }
   }
 
@@ -212,9 +244,9 @@ export function ChatWidget() {
     }
   }
 
-  const characterCount = input.trim().length;
+  const characterCount = state.input.trim().length;
   const isSendDisabled =
-    isSending || isLoadingHistory || characterCount === 0 || characterCount > MAX_MESSAGE_LENGTH;
+    state.isSending || characterCount === 0 || characterCount > MAX_MESSAGE_LENGTH;
 
   return (
     <main className="chat-shell">
@@ -244,7 +276,7 @@ export function ChatWidget() {
               <strong>Morrow Support</strong>
               <span className="status-line">
                 <span className="status-dot" aria-hidden="true" />
-                {isSending ? "Typing" : "Online"}
+                {state.isSending ? "Typing" : "Online"}
               </span>
             </div>
 
@@ -254,21 +286,14 @@ export function ChatWidget() {
               title="Start a new conversation"
               aria-label="Start a new conversation"
               onClick={resetConversation}
-              disabled={isSending}
+              disabled={state.isSending}
             >
               <RefreshCcw size={18} aria-hidden="true" />
             </button>
           </header>
 
           <div className="messages" ref={listRef} aria-live="polite">
-            {isLoadingHistory ? (
-              <div className="empty-state">
-                <div>
-                  <h2>Loading chat</h2>
-                  <p>Restoring your conversation.</p>
-                </div>
-              </div>
-            ) : messages.length === 0 ? (
+            {state.messages.length === 0 ? (
               <div className="empty-state">
                 <div>
                   <h2>How can we help?</h2>
@@ -290,7 +315,7 @@ export function ChatWidget() {
                 </div>
               </div>
             ) : (
-              messages.map((message, index) => (
+              state.messages.map((message, index) => (
                 <div
                   className={`message-row ${message.sender}`}
                   key={message.id}
@@ -305,7 +330,7 @@ export function ChatWidget() {
               ))
             )}
 
-            {isSending ? (
+            {state.isSending ? (
               <div className="message-row ai">
                 <div className="message-bubble">
                   <span className="typing" aria-label="Agent is typing">
@@ -322,12 +347,16 @@ export function ChatWidget() {
             <form className="composer-form" onSubmit={handleSubmit}>
               <textarea
                 aria-label="Message"
-                disabled={isLoadingHistory}
-                onChange={(event) => setInput(event.target.value)}
+                onChange={(event) =>
+                  dispatch({
+                    type: "inputChanged",
+                    input: event.target.value
+                  })
+                }
                 onKeyDown={handleKeyDown}
                 placeholder="Ask about shipping, returns, or refunds"
                 rows={1}
-                value={input}
+                value={state.input}
               />
               <button
                 className="send-button"
@@ -340,8 +369,11 @@ export function ChatWidget() {
               </button>
             </form>
             <div className="composer-meta">
-              <span aria-live="polite" className={error ? "error-text" : undefined}>
-                {error ?? ""}
+              <span
+                aria-live="polite"
+                className={state.error ? "error-text" : undefined}
+              >
+                {state.error ?? ""}
               </span>
               <span>
                 {characterCount}/{MAX_MESSAGE_LENGTH}
