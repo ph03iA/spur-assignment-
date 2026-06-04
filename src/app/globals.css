@@ -34,8 +34,10 @@
 
 html,
 body {
+  height: 100%;
   margin: 0;
   min-height: 100%;
+  overflow: hidden;
 }
 
 body {
@@ -77,7 +79,9 @@ button:focus-visible {
 
 .chat-shell {
   display: grid;
+  height: 100svh;
   min-height: 100svh;
+  overflow: hidden;
   place-items: center;
   padding: 32px;
 }
@@ -85,8 +89,9 @@ button:focus-visible {
 .chat-frame {
   display: grid;
   grid-template-columns: minmax(244px, 322px) minmax(0, 780px);
+  height: min(792px, calc(100svh - 64px));
+  min-height: 0;
   width: min(1148px, 100%);
-  min-height: min(792px, calc(100svh - 64px));
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -104,6 +109,7 @@ button:focus-visible {
   display: grid;
   align-content: space-between;
   gap: 36px;
+  min-height: 0;
   padding: 32px;
   border-right: 1px solid var(--line);
   background: var(--surface);
@@ -548,7 +554,8 @@ button:focus-visible {
 
   .chat-frame {
     grid-template-columns: 1fr;
-    min-height: 100svh;
+    height: 100svh;
+    min-height: 0;
     border: 0;
     border-radius: 0;
     box-shadow: none;
