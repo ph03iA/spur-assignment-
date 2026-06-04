@@ -7,7 +7,7 @@ import {
 import { generateReply } from "@/server/services/llm/gemini";
 
 const LLM_FALLBACK_REPLY =
-  "I am having trouble reaching the AI support system right now. Please try again in a moment, or email support@acmesupply.example for help.";
+  "I am having trouble reaching the AI support system right now. Please try again in a moment, or email support@morrowsupply.example for help.";
 
 export async function createChatReply(input: {
   message: string;
