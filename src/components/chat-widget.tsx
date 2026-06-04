@@ -114,11 +114,13 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
 }
 
 function renderMessageText(text: string): ReactNode {
-  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  const parts = text.split("**");
 
   return parts.map((part, index) => {
-    if (part.startsWith("**") && part.endsWith("**")) {
-      return <strong key={`${part}-${index}`}>{part.slice(2, -2)}</strong>;
+    const isWrappedBoldSegment = index % 2 === 1 && index < parts.length - 1;
+
+    if (isWrappedBoldSegment) {
+      return <strong key={`${part}-${index}`}>{part}</strong>;
     }
 
     return part;
