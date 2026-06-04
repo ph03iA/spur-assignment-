@@ -93,6 +93,11 @@ button:focus-visible {
   background: var(--surface-strong);
   box-shadow: var(--shadow);
   animation: frame-in 520ms var(--ease-out) both;
+  caret-color: transparent;
+}
+
+.chat-frame textarea {
+  caret-color: auto;
 }
 
 .store-panel {
@@ -102,6 +107,7 @@ button:focus-visible {
   padding: 32px;
   border-right: 1px solid var(--line);
   background: var(--surface);
+  user-select: none;
 }
 
 .store-panel h1 {
@@ -174,6 +180,7 @@ button:focus-visible {
   padding: 18px 24px;
   border-bottom: 1px solid var(--line);
   background: rgb(255 255 255 / 86%);
+  user-select: none;
 }
 
 .chat-title {
