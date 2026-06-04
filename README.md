@@ -28,7 +28,7 @@ A mini customer-support chat widget for the Spur founding full-stack engineer as
    ```bash
    DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE?schema=public"
    GEMINI_API_KEY="your-gemini-api-key"
-   GEMINI_MODEL="gemini-2.5-flash"
+   GEMINI_MODEL="gemini-3.5-flash"
    ```
 
 4. Run the database migration:
@@ -86,7 +86,7 @@ The backend stores both user and AI messages. If Gemini fails because of timeout
 
 ## Gemini Notes
 
-The app uses Google's official `@google/genai` TypeScript SDK. `GEMINI_MODEL` defaults to `gemini-2.5-flash`. The prompt instructs Gemini to act as a concise ecommerce support agent and includes policies for shipping, returns, refunds, support hours, and order-specific help.
+The app uses Google's official `@google/genai` TypeScript SDK. `GEMINI_MODEL` defaults to `gemini-3.5-flash`. The prompt instructs Gemini to act as a concise ecommerce support agent and includes policies for shipping, returns, refunds, support hours, and order-specific help.
 
 ## Robustness
 
