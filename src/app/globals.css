@@ -70,8 +70,7 @@ button {
   border: 0;
 }
 
-button:focus-visible,
-textarea:focus-visible {
+button:focus-visible {
   outline: 2px solid rgb(49 95 80 / 62%);
   outline-offset: 3px;
 }
@@ -417,9 +416,9 @@ textarea:focus-visible {
 }
 
 .composer textarea:focus {
-  border-color: rgb(49 95 80 / 48%);
-  background: #ffffff;
-  box-shadow: 0 0 0 4px rgb(49 95 80 / 10%);
+  border-color: var(--line);
+  background: var(--surface-strong);
+  box-shadow: none;
 }
 
 .send-button {
