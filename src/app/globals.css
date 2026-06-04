@@ -105,24 +105,9 @@ textarea:focus-visible {
   background: var(--surface);
 }
 
-.brand-mark {
-  display: inline-grid;
-  width: 44px;
-  height: 44px;
-  place-items: center;
-  border: 1px solid #eadfbf;
-  border-radius: 8px;
-  background: #fbf3db;
-  color: #6d4f0c;
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  font-weight: 680;
-  letter-spacing: 0.04em;
-}
-
 .store-panel h1 {
   max-width: 11ch;
-  margin: 22px 0 14px;
+  margin: 0 0 14px;
   color: var(--text);
   font-family: var(--font-display);
   font-size: clamp(2.35rem, 5vw, 3.65rem);
@@ -281,20 +266,6 @@ textarea:focus-visible {
   width: min(430px, 100%);
   justify-items: center;
   animation: rise-in 620ms var(--ease-out) both;
-}
-
-.eyebrow {
-  margin-bottom: 14px;
-  border: 1px solid #e7dfc5;
-  border-radius: 999px;
-  background: #fbf3db;
-  color: #76560f;
-  padding: 6px 10px;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 640;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 .empty-state h2 {

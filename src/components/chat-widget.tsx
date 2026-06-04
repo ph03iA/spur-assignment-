@@ -208,7 +208,6 @@ export function ChatWidget() {
       <section className="chat-frame" aria-label="AI support chat">
         <aside className="store-panel" aria-label="Store context">
           <div>
-            <span className="brand-mark">MS</span>
             <h1>Morrow Supply</h1>
             <p>
               Everyday gear, clear policies, and direct help from the support
@@ -259,7 +258,6 @@ export function ChatWidget() {
             ) : messages.length === 0 ? (
               <div className="empty-state">
                 <div>
-                  <span className="eyebrow">AI support desk</span>
                   <h2>How can we help?</h2>
                   <p>
                     Ask about shipping, returns, refunds, or an order change.
