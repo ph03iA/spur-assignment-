@@ -342,6 +342,10 @@ button:focus-visible {
   overflow-wrap: anywhere;
 }
 
+.message-bubble strong {
+  font-weight: 700;
+}
+
 .message-row.ai .message-bubble {
   border: 1px solid var(--agent-border);
   background: var(--agent);

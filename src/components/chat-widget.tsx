@@ -4,6 +4,7 @@ import {
   type CSSProperties,
   FormEvent,
   KeyboardEvent,
+  type ReactNode,
   useEffect,
   useRef,
   useState
@@ -60,6 +61,18 @@ function createLocalMessage(sender: Sender, text: string): ChatMessage {
     text,
     createdAt: new Date().toISOString()
   };
+}
+
+function renderMessageText(text: string): ReactNode {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+
+  return parts.map((part, index) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return <strong key={`${part}-${index}`}>{part.slice(2, -2)}</strong>;
+    }
+
+    return part;
+  });
 }
 
 export function ChatWidget() {
@@ -283,7 +296,11 @@ export function ChatWidget() {
                   key={message.id}
                   style={{ "--index": index } as CSSProperties}
                 >
-                  <div className="message-bubble">{message.text}</div>
+                  <div className="message-bubble">
+                    {message.sender === "ai"
+                      ? renderMessageText(message.text)
+                      : message.text}
+                  </div>
                 </div>
               ))
             )}
