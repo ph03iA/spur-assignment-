@@ -254,11 +254,11 @@ export function ChatWidget({
     <main className="chat-shell">
       <section className="chat-frame" aria-label="AI support chat">
         <aside className="store-panel" aria-label="Store context">
-          <div>
+          <div className="store-intro">
+            <span className="store-eyebrow">Customer care</span>
             <h1>Morrow Supply</h1>
             <p>
-              Everyday gear, clear policies, and direct help from the support
-              desk.
+              Everyday gear, clear policies, and direct help from the team.
             </p>
           </div>
 
@@ -270,6 +270,11 @@ export function ChatWidget({
               </li>
             ))}
           </ul>
+
+          <div className="store-note" aria-label="Support quality">
+            <span>Current queue</span>
+            <strong>Online and ready</strong>
+          </div>
         </aside>
 
         <section className="chat-panel">
