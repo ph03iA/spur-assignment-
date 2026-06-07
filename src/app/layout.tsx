@@ -3,7 +3,10 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Spur AI Live Chat",
-  description: "A mini AI support agent for a live chat widget."
+  description: "A mini AI support agent for a live chat widget.",
+  icons: {
+    icon: "/favicon.ico"
+  }
 };
 
 export default function RootLayout({
