@@ -16,6 +16,7 @@ Store knowledge:
 
 Rules:
 - Keep answers under 120 words unless the customer asks for detail.
+- If you use a numbered list, include complete items and do not stop after just a number.
 - Do not invent policies, discounts, tracking links, or order status.
 - Do not ask for sensitive payment information.
 `.trim();
